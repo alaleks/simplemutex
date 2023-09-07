@@ -81,10 +81,11 @@ func TestMutexResult(t *testing.T) {
 		wg.Add(1)
 
 		go func() {
+			defer wg.Done()
+
 			mu.Lock()
 			result++
 			mu.Unlock()
-			wg.Done()
 		}()
 	}
 
@@ -141,14 +142,14 @@ func BenchmarkSimpleMutex(b *testing.B) {
 func BenchmarkMutexRead(b *testing.B) {
 	var (
 		mu   sync.RWMutex
-		data = map[int]string{1: "test"}
+		data = map[int]struct{}{1: {}}
 	)
 
 	b.ResetTimer()
 
 	for i := 1; i < b.N; i++ {
 		mu.RLock()
-		_, _ = data[i]
+		_, _ = data[1]
 		mu.RUnlock()
 	}
 }
@@ -156,14 +157,14 @@ func BenchmarkMutexRead(b *testing.B) {
 func BenchmarkSimpleMutexRead(b *testing.B) {
 	var (
 		mu   = simplemutex.New()
-		data = map[int]string{1: "test"}
+		data = map[int]struct{}{1: {}}
 	)
 
 	b.ResetTimer()
 
 	for i := 1; i < b.N; i++ {
 		mu.RLock()
-		_, _ = data[i]
+		_, _ = data[1]
 		mu.RUnlock()
 	}
 }
